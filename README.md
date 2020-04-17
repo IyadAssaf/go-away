@@ -34,3 +34,6 @@ GLOBAL OPTIONS:
    --status-emoji value  emoji to use for slack status (default: "🎥")
    --help, -h            show help (default: false)
 ```
+
+### Issues
+- Currently only supports OSX

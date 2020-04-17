@@ -46,6 +46,8 @@ func (s *slackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context) error {
 				return
 			}
 
+			log.Debugf("webcam is on %+v", isOn)
+
 			if isOn {
 				if err := s.DoNotDistrub(ctx); err != nil {
 					errCh<-err
@@ -57,18 +59,20 @@ func (s *slackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context) error {
 					return
 				}
 			}
-			select {
-			case <-ctx.Done():
-				switch ctx.Err() {
-				case context.Canceled:
-					//cancelling is A-okay
-					errCh <- nil
-				default:
-					errCh <- ctx.Err()
-				}
-			}
-
 			time.Sleep(defaultWaitTime)
+		}
+	}()
+
+	go func() {
+		select {
+		case <-ctx.Done():
+			switch ctx.Err() {
+			case context.Canceled:
+				//cancelling is A-okay
+				errCh <- nil
+			default:
+				errCh <- ctx.Err()
+			}
 		}
 	}()
 

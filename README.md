@@ -17,7 +17,7 @@ Your slack API token should be set in the `SLACK_API_TOKEN` env variable
 ```
 $ go-away --help
 NAME:
-   goaway - ./goaway
+   go-away - ./go-away
 
 USAGE:
    go-away [global options] command [command options] [arguments...]

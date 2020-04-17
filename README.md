@@ -8,7 +8,7 @@ A tiny CLI tool to change your Slack status when you're on webcam. Useful for st
 
 2. [Set up a slack app](https://api.slack.com/authentication/basics) and install it in your slack workspace 
 
-3. Find your "OAuth Access Token" from the Slack app console and set it to a `SLACK_API_TOKEEN` environment variable
+3. Find your "OAuth Access Token" from the Slack app console and set it to a `SLACK_API_TOKEN` environment variable
 
 ### Usage
 

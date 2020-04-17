@@ -13,7 +13,7 @@ func main() {
 	app := &cli.App{
 		Name:        "goaway",
 		Usage:       "./goaway",
-		Description: "update slack with a status when you're on webcam",
+		Description: "automatically set a custom slack status when you're on webcam",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:  "debug",

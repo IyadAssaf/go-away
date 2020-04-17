@@ -10,45 +10,70 @@ import (
 
 var log = logrus.New()
 
-//TODO make customisable from envs, cli
 const (
-	defaultWaitTime      = time.Second * 10
-	defaultOnWebcamText  = "On camera"
-	defaultOnWebcamEmoji = "🎥"
+	defaultWaitTime    = time.Second * 10
+	defaultStatusText  = "On webcam"
+	defaultStatusEmoji = "🎥"
 )
 
 type slackStatus struct {
-	client *slack.Client
+	client      *slack.Client
+	statusText  string
+	statusEmoji string
 }
 
 func (s *slackStatus) DoNotDistrub(ctx context.Context) error {
-	log.Debugf("Setting do not disturb status on slack")
-	return s.client.SetUserCustomStatusContext(ctx, defaultOnWebcamText, defaultOnWebcamEmoji, 0)
+	log.Debugf("Setting status on slack")
+	return s.client.SetUserCustomStatusContext(ctx, defaultStatusText, defaultStatusEmoji, 0)
 }
 
 func (s *slackStatus) Clear(ctx context.Context) error {
-	log.Debugf("Un-setting do not disturb status on slack")
+	log.Debugf("Unsetting status on slack")
 	return s.client.UnsetUserCustomStatusContext(ctx)
 }
 
 func (s *slackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context) error {
 	defer s.Clear(ctx)
-	for {
-		isOn, err := webcamchecker.IsWebcamOn(ctx)
-		if err != nil {
-			return err
-		}
 
-		if isOn {
-			if err := s.DoNotDistrub(ctx); err != nil {
-				return err
+	errCh := make(chan error, 1)
+	defer close(errCh)
+
+	go func() {
+		for {
+			isOn, err := webcamchecker.IsWebcamOn(ctx)
+			if err != nil {
+				errCh<-err
+				return
 			}
-		} else {
-			if err := s.Clear(ctx); err != nil {
-				return err
+
+			if isOn {
+				if err := s.DoNotDistrub(ctx); err != nil {
+					errCh<-err
+					return
+				}
+			} else {
+				if err := s.Clear(ctx); err != nil {
+					errCh<-err
+					return
+				}
 			}
+			select {
+			case <-ctx.Done():
+				switch ctx.Err() {
+				case context.Canceled:
+					//cancelling is A-okay
+					errCh <- nil
+				default:
+					errCh <- ctx.Err()
+				}
+			}
+
+			time.Sleep(defaultWaitTime)
 		}
-		time.Sleep(defaultWaitTime)
-	}
+	}()
+
+	err := <-errCh
+	log.Debugf("context is finished")
+
+	return err
 }
-

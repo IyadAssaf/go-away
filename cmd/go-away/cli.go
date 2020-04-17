@@ -4,8 +4,9 @@ import (
 	"context"
 	"github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"os"
+	"os/signal"
 )
 
 func main() {
@@ -16,6 +17,18 @@ func main() {
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:  "debug",
+				Usage: "enable debug logging",
+				Value: false,
+			},
+			&cli.StringFlag{
+				Name:  "status-text",
+				Usage: "text to use for slack status",
+				Value: defaultStatusText,
+			},
+			&cli.StringFlag{
+				Name:  "status-emoji",
+				Usage: "emoji to use for slack status",
+				Value: defaultStatusEmoji,
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -23,10 +36,21 @@ func main() {
 				log.SetLevel(logrus.DebugLevel)
 			}
 
+			ch := make(chan os.Signal, 1)
+			signal.Notify(ch, os.Interrupt)
+
+			ctx, cancel := context.WithCancel(c.Context)
+			go func() {
+				<-ch
+				cancel()
+			}()
+
 			s := &slackStatus{
-				client: slack.New(os.Getenv("SLACK_API_TOKEN")),
+				client:      slack.New(os.Getenv("SLACK_API_TOKEN")),
+				statusText:  c.String("status-text"),
+				statusEmoji: c.String("status-emoji"),
 			}
-			return s.SetStatusWhenWebcamIsBusy(context.Background())
+			return s.SetStatusWhenWebcamIsBusy(ctx)
 		},
 	}
 

@@ -1,4 +1,4 @@
-# go-away
+# go-away - Automatically set a custom Slack status when you're on webcam 🎥
 
 A tiny CLI tool to change your Slack status when you're on webcam. Useful for stopping your girlfriend from walking into the room when you're on a work call
 

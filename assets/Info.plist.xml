@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<[[Image:DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.9">
+<dict>
+    <|]]— start of standard entries —>
+ <key>CFBundleIconFile</key>
+ <string>@ICON@</string>
+ <key>CFBundlePackageType</key>
+ <string>APPL</string>
+ <key>CFBundleGetInfoString</key>
+ <string></string>
+ <key>CFBundleSignature</key>
+ <string>@TYPEINFO@</string>
+ <key>CFBundleExecutable</key>
+ <string>goaway</string>
+ <key>CFBundleIdentifier</key>
+ <string>com.iyadassaf.goaway</string>
+ <!— start of customized entries —>
+ <key>LSUIElement</key>
+ <string>1</string>
+</dict>
+</plist>

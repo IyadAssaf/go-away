@@ -1,38 +1,52 @@
-package main
+package status
 
 import (
 	"context"
 	"github.com/IyadAssaf/webcamchecker"
 	"github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
+	"os"
 	"time"
 )
 
+// TODO make property of SlackStatus
 var log = logrus.New()
 
 const (
-	defaultWaitTime    = time.Second * 10
-	defaultStatusText  = "On webcam"
-	defaultStatusEmoji = "🎥"
+	DefaultStatusText  = "On webcam"
+	DefaultStatusEmoji = "🎥"
+	DefaultWaitTime    = time.Second * 10
 )
 
-type slackStatus struct {
+type SlackStatus struct {
 	client      *slack.Client
 	statusText  string
 	statusEmoji string
 }
 
-func (s *slackStatus) DoNotDistrub(ctx context.Context) error {
-	log.Debugf("Setting status on slack")
-	return s.client.SetUserCustomStatusContext(ctx, defaultStatusText, defaultStatusEmoji, 0)
+func NewSlackStatus(statusText, statusEmoji string) *SlackStatus {
+	return &SlackStatus{
+		client:      slack.New(os.Getenv("SLACK_API_TOKEN")),
+		statusText:  stringOrDefault(statusText, DefaultStatusText),
+		statusEmoji: stringOrDefault(statusEmoji, DefaultStatusEmoji),
+	}
 }
 
-func (s *slackStatus) Clear(ctx context.Context) error {
+func (s *SlackStatus) SetLogLevel(level logrus.Level) {
+	log.SetLevel(level)
+}
+
+func (s *SlackStatus) DoNotDistrub(ctx context.Context) error {
+	log.Debugf("Setting status on slack")
+	return s.client.SetUserCustomStatusContext(ctx, s.statusText, s.statusEmoji, 0)
+}
+
+func (s *SlackStatus) Clear(ctx context.Context) error {
 	log.Debugf("Unsetting status on slack")
 	return s.client.UnsetUserCustomStatusContext(ctx)
 }
 
-func (s *slackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context) error {
+func (s *SlackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context) error {
 	defer s.Clear(ctx)
 
 	errCh := make(chan error, 1)
@@ -59,7 +73,7 @@ func (s *slackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context) error {
 					return
 				}
 			}
-			time.Sleep(defaultWaitTime)
+			time.Sleep(DefaultWaitTime)
 		}
 	}()
 
@@ -80,4 +94,11 @@ func (s *slackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context) error {
 	log.Debugf("context is finished")
 
 	return err
+}
+
+func stringOrDefault(s, def string) string {
+	if s != "" {
+		return s
+	}
+	return def
 }

@@ -1,6 +1,8 @@
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/IyadAssaf/webcamchecker v0.0.0-20200414204350-4785775dfc0b h1:6bwGklEXnHc00AjgK9qoKAK9S4g7io8d4GJQQLSVdb8=
 github.com/IyadAssaf/webcamchecker v0.0.0-20200414204350-4785775dfc0b/go.mod h1:thgiliKpFIRNQ52yFicABrY4oRIygO2BWjBGoBiS6fE=
+github.com/IyadAssaf/webcamchecker v0.0.0-20200417211724-4b59d063a319 h1:PKTzhNGYgLnRa9hQkbEZJnRYsmB9iaq2bo/QpLer2ik=
+github.com/IyadAssaf/webcamchecker v0.0.0-20200417211724-4b59d063a319/go.mod h1:thgiliKpFIRNQ52yFicABrY4oRIygO2BWjBGoBiS6fE=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d h1:U+s90UTSYgptZMwQh2aRr3LuazLJIa+Pg3Kc1ylSYVY=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

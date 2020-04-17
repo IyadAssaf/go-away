@@ -11,8 +11,8 @@ import (
 
 func main() {
 	app := &cli.App{
-		Name:        "goaway",
-		Usage:       "./goaway",
+		Name:        "go-away",
+		Usage:       "./go-away",
 		Description: "update slack with a status when you're on webcam",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{

@@ -13,7 +13,10 @@ Useful for stopping your girlfriend from walking into the room when you're on a 
 
 ### GoAway taskbar app
 
-- Run `make install-app` and copy your app to your Applications folder  
+- Run `make install-app` and copy your app to your Applications folder
+
+![go-away](assets/screenshot.png)
+  
 
 ### CLI `go-away` 
 

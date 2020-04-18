@@ -8,6 +8,10 @@ if [ $? -ne 0 ]; then
     exit
 fi
 
+: ${GOPATH:=$HOME/go}
+
+echo "Got GOPATH $GOPATH"
+
 ICON=$1
 OUTPUT=$2
 VARIABLE_NAME=$3
@@ -15,7 +19,7 @@ VARIABLE_NAME=$3
 echo generating $OUTPUT
 echo "//+build linux darwin" > $OUTPUT
 echo >> $OUTPUT
-cat $ICON | 2goarray $VARIABLE_NAME main >> $OUTPUT
+cat $ICON | $GOPATH/bin/2goarray $VARIABLE_NAME main >> $OUTPUT
 if [ $? -ne 0 ]; then
     echo failured to generate $OUTPUT
     exit

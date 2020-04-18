@@ -31,8 +31,7 @@ func onReady() {
 		fmt.Println("Finished quitting")
 	}()
 
-	s := status.NewSlackStatus(status.DefaultStatusText, status.DefaultStatusEmoji, status.DefaultWaitTimeSeconds)
-
+	s := status.NewSlackStatus()
 
 	isOnCh := make(chan bool)
 	go func() {
@@ -52,7 +51,7 @@ func onReady() {
 	err := s.SetStatusWhenWebcamIsBusy(ctx, isOnCh)
 	if err != nil {
 		log.Fatal(err)
-		// TODO ... show a message something?
+		// TODO ... show a message something? Maybe write to a error log?
 	}
 }
 

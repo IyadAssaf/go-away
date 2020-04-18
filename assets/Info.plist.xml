@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
- <key>CFBundleIconFile</key>
- <string>@ICON@</string>
  <key>CFBundlePackageType</key>
  <string>APPL</string>
  <key>CFBundleGetInfoString</key>
@@ -12,8 +10,6 @@
  <array>
   <string>MacOSX</string>
  </array>
- <key>CFBundleSignature</key>
- <string>@TYPEINFO@</string>
  <key>CFBundleExecutable</key>
  <string>goaway</string>
  <key>CFBundleIdentifier</key>
@@ -24,7 +20,7 @@
  <!-- avoid having a blurry icon and text -->
  <key>NSHighResolutionCapable</key>
  <string>True</string>
- <!-- avoid showing the app on the Dock -->
+ <!-- avoid showing the app own the Dock -->
  <key>LSUIElement</key>
  <string>1</string>
 </dict>

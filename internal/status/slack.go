@@ -25,13 +25,28 @@ type SlackStatus struct {
 	refreshRate int64
 }
 
-func NewSlackStatus(statusText, statusEmoji string, refreshRate int64) *SlackStatus {
+func NewSlackStatus() *SlackStatus {
 	return &SlackStatus{
 		client:      slack.New(os.Getenv("SLACK_API_TOKEN")),
-		statusText:  statusText,
-		statusEmoji: statusEmoji,
-		refreshRate: refreshRate,
+		statusText:  DefaultStatusText,
+		statusEmoji: DefaultStatusEmoji,
+		refreshRate: DefaultWaitTimeSeconds,
 	}
+}
+
+func (s *SlackStatus) WithStatusText(text string) *SlackStatus {
+	s.statusText = text
+	return s
+}
+
+func (s *SlackStatus) WithStatusEmoji(emoji string) *SlackStatus {
+	s.statusEmoji = emoji
+	return s
+}
+
+func (s *SlackStatus) WithRefreshRate(rate int64) *SlackStatus {
+	s.refreshRate = rate
+	return s
 }
 
 func (s *SlackStatus) SetLogLevel(level logrus.Level) {
@@ -58,7 +73,7 @@ func (s *SlackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context, isOnNotif c
 		for {
 			isOn, err := webcamchecker.IsWebcamOn(ctx)
 			if err != nil {
-				errCh<-err
+				errCh <- err
 				return
 			}
 
@@ -70,12 +85,12 @@ func (s *SlackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context, isOnNotif c
 
 			if isOn {
 				if err := s.DoNotDistrub(ctx); err != nil {
-					errCh<-err
+					errCh <- err
 					return
 				}
 			} else {
 				if err := s.Clear(ctx); err != nil {
-					errCh<-err
+					errCh <- err
 					return
 				}
 			}
@@ -102,9 +117,16 @@ func (s *SlackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context, isOnNotif c
 	return err
 }
 
-func stringOrDefault(s, def string) string {
-	if s != "" {
-		return s
+func defaultStringPtr(input *string, def string) string {
+	if input != nil {
+		return *input
+	}
+	return def
+}
+
+func defaultInt64Ptr(input *int64, def int64) int64 {
+	if input != nil {
+		return *input
 	}
 	return def
 }

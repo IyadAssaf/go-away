@@ -1,5 +1,6 @@
-.idea/
+cmd/taskbar/icon_camera_off.go
+cmd/taskbar/icon_camera_on.go
+
+.idea
 GoAway.app
-GoAway.app/
 .DS_Store
-./cmd/taskbar/icon_*

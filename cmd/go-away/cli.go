@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"time"
 )
 
 func main() {
@@ -35,7 +34,7 @@ func main() {
 			&cli.Int64Flag{
 				Name:  "refresh-rate",
 				Usage: "number of seconds to refresh webcam status",
-				Value: int64(status.DefaultWaitTimeSeconds / time.Second),
+				Value: status.DefaultWaitTimeSeconds,
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -49,7 +48,11 @@ func main() {
 				cancel()
 			}()
 
-			s := status.NewSlackStatus(c.String("status-text"), c.String("status-emoji"), c.Int64("refresh-rate"))
+			s := status.NewSlackStatus().
+				WithStatusText(c.String("status-text")).
+				WithStatusEmoji(c.String("status-emoji")).
+				WithRefreshRate(c.Int64("refresh-rate"))
+
 			if c.Bool("debug") {
 				s.SetLogLevel(logrus.DebugLevel)
 			}

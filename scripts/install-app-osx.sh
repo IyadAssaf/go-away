@@ -15,7 +15,8 @@ rm -rf ./GoAway.app || true
 
 mkdir -p GoAway.app/Contents/MacOS/
 mkdir -p GoAway.app/Contents/Resources/
-touch GoAway.app/Contents/Resources/GoAway.icns
+touch GoAway.app/Contents/Resources/GoAway.icnsp
+echo -n APPLGoAway > GoAway.app/Contents/PkgInfo
 
 cp ./assets/Info.plist.xml GoAway.app/Contents/Info.plist
 
@@ -26,5 +27,8 @@ GO111MODULE=on
 go build -o goaway ./cmd/taskbar
 chmod +x goaway
 mv goaway GoAway.app/Contents/MacOS/
+
+# TODO sign app
+# codesign -fs "Iyad Assaf Code Signer" ./GoAway.app
 
 echo "Built $PWD/GoAway.app, move it to your Applications folder"

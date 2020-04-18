@@ -14,7 +14,8 @@ func main() {
 }
 
 func onReady() {
-	systray.SetTitle("Go Away")
+	systray.SetTooltip("Go Away")
+	systray.SetIcon(iconData)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	mQuitOrig := systray.AddMenuItem("Quit", "Quit the whole app")

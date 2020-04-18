@@ -2,3 +2,4 @@
 GoAway.app
 GoAway.app/
 .DS_Store
+./cmd/taskbar/iconunix.go

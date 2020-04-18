@@ -39,6 +39,7 @@ func onReady() {
 			log.Println("Setting token", t)
 			slackStatus = slackStatus.WithSlackToken(t)
 			trigger <- struct{}{}
+			clearError()
 		}
 	}()
 
@@ -57,6 +58,7 @@ func loop(ctx context.Context, s *status.SlackStatus, trigger chan struct{}, isO
 		if err != nil {
 			logError(err)
 		}
+		clearError()
 	}
 }
 

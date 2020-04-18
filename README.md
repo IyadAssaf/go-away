@@ -1,18 +1,23 @@
 # go-away
 
-A tiny CLI tool to change your Slack status when you're on webcam. Useful for stopping your girlfriend from walking into the room when you're on a work call
+A tiny CLI tool and taskbar app to change your Slack status when you're on webcam. 
+Useful for stopping your girlfriend from walking into the room when you're on a work call
 
 ### Setup
 
-1. `make install`
+1. [Download and install the most recent version of Go](https://golang.org/dl). 
 
 2. [Set up a slack app](https://api.slack.com/authentication/basics) and install it in your slack workspace 
 
-3. Find your "OAuth Access Token" from the Slack app console and set it to a `SLACK_API_TOKEEN` environment variable
+3. Find your "OAuth Access Token" from the Slack app console and set it to an environment variable called `SLACK_API_TOKEN` 
 
-### Usage
+### GoAway taskbar app
 
-Your slack API token should be set in the `SLACK_API_TOKEN` env variable
+- Run `make install-app` 
+
+### CLI `go-away` 
+
+- Run `make install-cli` to install it to install the CLI tool
 
 ```
 $ go-away --help
@@ -32,5 +37,6 @@ GLOBAL OPTIONS:
    --debug               enable debug logging (default: false)
    --status-text value   text to use for slack status (default: "On webcam")
    --status-emoji value  emoji to use for slack status (default: "🎥")
+   --refresh-rate value  number of seconds to refresh webcam status (default: 0)
    --help, -h            show help (default: false)
 ```

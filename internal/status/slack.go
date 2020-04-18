@@ -13,22 +13,24 @@ import (
 var log = logrus.New()
 
 const (
-	DefaultStatusText  = "On webcam"
-	DefaultStatusEmoji = "🎥"
-	DefaultWaitTime    = time.Second * 10
+	DefaultStatusText      = "On webcam"
+	DefaultStatusEmoji     = "🎥"
+	DefaultWaitTimeSeconds = 5
 )
 
 type SlackStatus struct {
 	client      *slack.Client
 	statusText  string
 	statusEmoji string
+	refreshRate int64
 }
 
-func NewSlackStatus(statusText, statusEmoji string) *SlackStatus {
+func NewSlackStatus(statusText, statusEmoji string, refreshRate int64) *SlackStatus {
 	return &SlackStatus{
 		client:      slack.New(os.Getenv("SLACK_API_TOKEN")),
-		statusText:  stringOrDefault(statusText, DefaultStatusText),
-		statusEmoji: stringOrDefault(statusEmoji, DefaultStatusEmoji),
+		statusText:  statusText,
+		statusEmoji: statusEmoji,
+		refreshRate: refreshRate,
 	}
 }
 
@@ -46,7 +48,7 @@ func (s *SlackStatus) Clear(ctx context.Context) error {
 	return s.client.UnsetUserCustomStatusContext(ctx)
 }
 
-func (s *SlackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context) error {
+func (s *SlackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context, isOnNotif chan bool) error {
 	defer s.Clear(ctx)
 
 	errCh := make(chan error, 1)
@@ -58,6 +60,10 @@ func (s *SlackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context) error {
 			if err != nil {
 				errCh<-err
 				return
+			}
+
+			if isOnNotif != nil {
+				isOnNotif <- isOn
 			}
 
 			log.Debugf("webcam is on %+v", isOn)
@@ -73,7 +79,7 @@ func (s *SlackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context) error {
 					return
 				}
 			}
-			time.Sleep(DefaultWaitTime)
+			time.Sleep(time.Second * time.Duration(s.refreshRate))
 		}
 	}()
 

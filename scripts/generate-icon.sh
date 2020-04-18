@@ -1,30 +1,23 @@
 #/bin/sh
 
-# Taken from https://raw.githubusercontent.com/getlantern/systray/master/example/icon/make_icon.sh
+# Modified from https://raw.githubusercontent.com/getlantern/systray/master/example/icon/make_icon.sh
 
 go get github.com/cratonica/2goarray
 if [ $? -ne 0 ]; then
-    echo Failure executing go get github.com/cratonica/2goarray
+    echo failed to install 2goarray
     exit
 fi
 
-if [ -z "$1" ]; then
-    echo Please specify a PNG file
-    exit
-fi
+ICON=$1
+OUTPUT=$2
+VARIABLE_NAME=$3
 
-if [ ! -f "$1" ]; then
-    echo $1 is not a valid file
-    exit
-fi
-
-OUTPUT=./cmd/taskbar/iconunix.go
-echo Generating $OUTPUT
+echo generating $OUTPUT
 echo "//+build linux darwin" > $OUTPUT
 echo >> $OUTPUT
-cat "$1" | $GOPATH/bin/2goarray iconData main >> $OUTPUT
+cat $ICON | 2goarray $VARIABLE_NAME main >> $OUTPUT
 if [ $? -ne 0 ]; then
-    echo Failure generating $OUTPUT
+    echo failured to generate $OUTPUT
     exit
 fi
-echo Finished
+echo generated $OUTPUT

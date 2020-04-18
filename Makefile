@@ -1,12 +1,12 @@
 
-install:
-	./scripts/install.sh
+install-cli:
+	./scripts/install-cli.sh
 
-uninstall:
-	./scripts/uninstall.sh
+uninstall-cli:
+	./scripts/uninstall-cli.sh
 
-install-taskbar:
-	./scripts/install-taskbar.sh
+install-app:
+	./scripts/install-app.sh
 
-run: install
+run: install-cli
 	go-away

@@ -3,10 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
-
 	"github.com/IyadAssaf/go-away/internal/status"
 	"github.com/getlantern/systray"
+	"log"
 )
 
 func main() {
@@ -15,10 +14,15 @@ func main() {
 
 func onReady() {
 	systray.SetTooltip("Go Away")
-	systray.SetIcon(iconData)
+	systray.SetIcon(cameraOffIconData)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	mQuitOrig := systray.AddMenuItem("Quit", "Quit the whole app")
+
+	statusCameraOnText := systray.AddMenuItem(fmt.Sprintf(`Slack status set to "%s %s"`, status.DefaultStatusText, status.DefaultStatusEmoji), "")
+	statusCameraOnText.Hide()
+	statusCameraOnText.Disable()
+
+	mQuitOrig := systray.AddMenuItem("Quit", "")
 	go func() {
 		<-mQuitOrig.ClickedCh
 		fmt.Println("Requesting quit")
@@ -27,8 +31,25 @@ func onReady() {
 		fmt.Println("Finished quitting")
 	}()
 
-	s := status.NewSlackStatus(status.DefaultStatusText, status.DefaultStatusEmoji)
-	err := s.SetStatusWhenWebcamIsBusy(ctx)
+	s := status.NewSlackStatus(status.DefaultStatusText, status.DefaultStatusEmoji, status.DefaultWaitTimeSeconds)
+
+
+	isOnCh := make(chan bool)
+	go func() {
+		for {
+			isOn := <-isOnCh
+			switch isOn {
+			case true:
+				systray.SetIcon(cameraOnIconData)
+				statusCameraOnText.Show()
+			case false:
+				systray.SetIcon(cameraOffIconData)
+				statusCameraOnText.Hide()
+			}
+		}
+	}()
+
+	err := s.SetStatusWhenWebcamIsBusy(ctx, isOnCh)
 	if err != nil {
 		log.Fatal(err)
 		// TODO ... show a message something?
@@ -37,3 +58,5 @@ func onReady() {
 
 func onExit() {
 }
+
+

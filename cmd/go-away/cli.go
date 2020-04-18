@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
 )
 
 func main() {
@@ -31,6 +32,11 @@ func main() {
 				Usage: "emoji to use for slack status",
 				Value: status.DefaultStatusEmoji,
 			},
+			&cli.Int64Flag{
+				Name:  "refresh-rate",
+				Usage: "number of seconds to refresh webcam status",
+				Value: int64(status.DefaultWaitTimeSeconds / time.Second),
+			},
 		},
 		Action: func(c *cli.Context) error {
 
@@ -43,11 +49,11 @@ func main() {
 				cancel()
 			}()
 
-			s := status.NewSlackStatus(c.String("status-text"), c.String("status-emoji"))
+			s := status.NewSlackStatus(c.String("status-text"), c.String("status-emoji"), c.Int64("refresh-rate"))
 			if c.Bool("debug") {
 				s.SetLogLevel(logrus.DebugLevel)
 			}
-			return s.SetStatusWhenWebcamIsBusy(ctx)
+			return s.SetStatusWhenWebcamIsBusy(ctx, nil)
 		},
 	}
 

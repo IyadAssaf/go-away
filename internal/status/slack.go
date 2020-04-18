@@ -23,6 +23,7 @@ type SlackStatus struct {
 	statusText  string
 	statusEmoji string
 	refreshRate int64
+	slackToken  string
 }
 
 func NewSlackStatus() *SlackStatus {
@@ -32,6 +33,12 @@ func NewSlackStatus() *SlackStatus {
 		statusEmoji: DefaultStatusEmoji,
 		refreshRate: DefaultWaitTimeSeconds,
 	}
+}
+
+func (s *SlackStatus) WithSlackToken(token string) *SlackStatus {
+	s.slackToken = token
+	s.client = slack.New(s.slackToken)
+	return s
 }
 
 func (s *SlackStatus) WithStatusText(text string) *SlackStatus {
@@ -55,11 +62,13 @@ func (s *SlackStatus) SetLogLevel(level logrus.Level) {
 
 func (s *SlackStatus) DoNotDistrub(ctx context.Context) error {
 	log.Debugf("Setting status on slack")
+	//TODO rate limit how often we send this
 	return s.client.SetUserCustomStatusContext(ctx, s.statusText, s.statusEmoji, 0)
 }
 
 func (s *SlackStatus) Clear(ctx context.Context) error {
 	log.Debugf("Unsetting status on slack")
+	//TODO rate limit how often we send this
 	return s.client.UnsetUserCustomStatusContext(ctx)
 }
 

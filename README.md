@@ -11,7 +11,7 @@ Useful for stopping your girlfriend from walking into the room when you're on a 
 
 3. Find your "OAuth Access Token" from the Slack app console and set it to an environment variable called `SLACK_API_TOKEN` 
 
-### GoAway taskbar app
+### GoAway.app
 
 - Run `make install-app` and copy your app to your Applications folder
 

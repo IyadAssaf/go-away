@@ -4,90 +4,57 @@ import (
 	"context"
 	"fmt"
 	"github.com/IyadAssaf/go-away/internal/status"
-	"os/exec"
+	"github.com/sirupsen/logrus"
 
-	"github.com/gen2brain/beeep"
 	"github.com/getlantern/systray"
-	"github.com/zserge/webview"
-	"github.com/gorilla/mux"
 	"log"
-	"net/http"
-	"github.com/phayes/freeport"
 )
 
-
-var slackTokenOption string
-
-func main() {
-	systray.RunWithAppWindow("Preferences", 500, 500, onReady, onExit)
-}
+var statusMenu, quitMenu, prefMenu *systray.MenuItem
 
 func onReady() {
-	var err error
 	systray.SetTooltip("Go Away")
 	systray.SetIcon(cameraOffIconData)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	_ = ctx
-
-	statusCameraOnText := systray.AddMenuItem(fmt.Sprintf(`Slack status set to "%s %s"`, status.DefaultStatusText, status.DefaultStatusEmoji), "")
-	statusCameraOnText.Hide()
-	statusCameraOnText.Disable()
-
-	port, err := freeport.GetFreePort()
-	if err != nil {
-		//TODO do something better
-		log.Fatal(err)
-	}
-
-	s := status.NewSlackStatus()
-
 	tokenCh := make(chan string)
-	go runConfigServer(ctx, port, tokenCh)
-
-	go func() {
-		t := <-tokenCh
-		log.Println("Setting token", t)
-		s.WithSlackToken(t)
-	}()
-
-	prefs := systray.AddMenuItem("Preferences", "")
-	go func() {
-		<-prefs.ClickedCh
-
-		cmd := exec.Command("open", fmt.Sprintf("http://localhost:%d", port))
-		_ = cmd.Run()
-	}()
-	//
-	mQuitOrig := systray.AddMenuItem("Quit", "")
-	go func() {
-		<-mQuitOrig.ClickedCh
-		fmt.Println("Requesting quit")
-		cancel()
-		systray.Quit()
-		fmt.Println("Finished quitting")
-	}()
-
+	//defer close(tokenCh)
+	trigger := make(chan struct{})
+	//defer close(trigger)
 	isOnCh := make(chan bool)
+	//defer close(isOnCh)
+
+	slackStatus := status.NewSlackStatus()
+	slackStatus.SetLogLevel(logrus.DebugLevel)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	statusMenu = setupStatusMenu(ctx)
+
+	prefMenu = setupPreferencesMenu(ctx, tokenCh)
+
+	quitMenu = setupQuitMenu(ctx, cancel)
 	go func() {
 		for {
-			isOn := <-isOnCh
-			switch isOn {
-			case true:
-				systray.SetIcon(cameraOnIconData)
-				statusCameraOnText.Show()
-			case false:
-				systray.SetIcon(cameraOffIconData)
-				statusCameraOnText.Hide()
-			}
+			t := <-tokenCh
+			log.Println("Setting token", t)
+			slackStatus = slackStatus.WithSlackToken(t)
+			trigger <- struct{}{}
 		}
 	}()
 
-	// TODO do something better than this. This needs to be triggered when we update the token in preferences
+	go switchIcon(ctx, isOnCh)
+
+	go loop(ctx, slackStatus, trigger, isOnCh)
+
+	trigger<-struct{}{}
+}
+
+func loop(ctx context.Context, s *status.SlackStatus, trigger chan struct{}, isOnCh chan bool) {
 	for {
-		err = s.SetStatusWhenWebcamIsBusy(ctx, isOnCh)
+		<-trigger
+		log.Println("Trigger")
+		err := s.SetStatusWhenWebcamIsBusy(ctx, isOnCh)
 		if err != nil {
-			_ = beeep.Notify("go-away", err.Error(), "")
+			logError(err)
 		}
 	}
 }
@@ -95,51 +62,33 @@ func onReady() {
 func onExit() {
 }
 
-func runConfigServer(ctx context.Context, port int, tokenCh chan string) {
-	r := mux.NewRouter()
-
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
-		w.Header().Add("Content-Type", "text/html")
-		w.Write([]byte(`
-<!DOCTYPE html>
-<html>
-<body>
-
-<form action="/preferences">
-  <label for="fname">Slack API token</label><br>
-  <input type="text" id="token" name="token" value=""><br>
-  <input type="submit" value="Submit">
-</form> 
-</body>
-</html>
-`))
-	}).Methods("GET")
-
-
-	r.HandleFunc("/preferences", func(w http.ResponseWriter, r *http.Request) {
-		token := r.FormValue("token")
-		log.Println("got slack token", token)
-		tokenCh <- token
-
-		//TODO stop race condition here since this is in a go routine
-		slackTokenOption = token
-	})
-
-	http.Handle("/", r)
-
-	// TODO make this closable from tokenCh closing
-	if err := http.ListenAndServe(fmt.Sprintf("localhost:%d", port), nil); err != nil {
-		panic(err)
-	}
+func setupQuitMenu(ctx context.Context, cancel context.CancelFunc) *systray.MenuItem {
+	menu := systray.AddMenuItem("Quit", "")
+	go func() {
+		<-menu.ClickedCh
+		cancel()
+		systray.Quit()
+	}()
+	return menu
 }
 
-func handleWindow() {
-	w := webview.New(webview.Settings{
-		Title: "Some title",
-		Height: 1000,
-		Width: 1000,
-		URL: "https://google.com",
-	})
-	w.Run()
+func setupStatusMenu(ctx context.Context) *systray.MenuItem {
+	menu := systray.AddMenuItem(fmt.Sprintf(`Slack status set to "%s %s"`, status.DefaultStatusText, status.DefaultStatusEmoji), "")
+	menu.Hide()
+	menu.Disable()
+	return menu
+}
+
+func switchIcon(ctx context.Context, isOnCh chan bool) error {
+	for {
+		isOn := <-isOnCh
+		switch isOn {
+		case true:
+			systray.SetIcon(cameraOnIconData)
+			statusMenu.Show()
+		case false:
+			systray.SetIcon(cameraOffIconData)
+			statusMenu.Hide()
+		}
+	}
 }

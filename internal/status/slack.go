@@ -15,7 +15,7 @@ var log = logrus.New()
 const (
 	DefaultStatusText      = "On webcam"
 	DefaultStatusEmoji     = "🎥"
-	DefaultWaitTimeSeconds = 5
+	DefaultWaitTimeSeconds = 8
 )
 
 type SlackStatus struct {
@@ -80,6 +80,7 @@ func (s *SlackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context, isOnNotif c
 
 	go func() {
 		for {
+			log.Debugf("Looping")
 			isOn, err := webcamchecker.IsWebcamOn(ctx)
 			if err != nil {
 				errCh <- err

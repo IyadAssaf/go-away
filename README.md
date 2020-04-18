@@ -1,4 +1,5 @@
-# go-away
+[![go-away](assets/logo/1100-with_padding.png)](http://expressjs.com/)
+
 
 A tiny CLI tool and taskbar app to change your Slack status when you're on webcam. 
 Useful for stopping your girlfriend from walking into the room when you're on a work call

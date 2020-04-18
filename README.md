@@ -1,5 +1,5 @@
 <p align="center">
-<img alt="go-away" src="assets/logo/1000-no_padding.png" width="500"/></p>
+<img alt="go-away" src="assets/logo/1000-no_padding.png" width="750"/></p>
 
 
 A tiny CLI tool and taskbar app to change your Slack status when you're on webcam. 

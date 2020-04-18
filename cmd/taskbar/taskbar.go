@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/IyadAssaf/go-away/internal/status"
 	"github.com/sirupsen/logrus"
 
@@ -10,7 +9,7 @@ import (
 	"log"
 )
 
-var statusMenu, quitMenu, prefMenu *systray.MenuItem
+var errMenu, statusMenu, quitMenu, prefMenu *systray.MenuItem
 
 func onReady() {
 	systray.SetTooltip("Go Away")
@@ -27,7 +26,9 @@ func onReady() {
 	slackStatus.SetLogLevel(logrus.DebugLevel)
 
 	ctx, cancel := context.WithCancel(context.Background())
+
 	statusMenu = setupStatusMenu(ctx)
+	errMenu = setupErrorMenu(ctx)
 
 	prefMenu = setupPreferencesMenu(ctx, tokenCh)
 
@@ -41,7 +42,7 @@ func onReady() {
 		}
 	}()
 
-	go switchIcon(ctx, isOnCh)
+	go switchOnIcon(ctx, isOnCh)
 
 	go loop(ctx, slackStatus, trigger, isOnCh)
 
@@ -59,27 +60,7 @@ func loop(ctx context.Context, s *status.SlackStatus, trigger chan struct{}, isO
 	}
 }
 
-func onExit() {
-}
-
-func setupQuitMenu(ctx context.Context, cancel context.CancelFunc) *systray.MenuItem {
-	menu := systray.AddMenuItem("Quit", "")
-	go func() {
-		<-menu.ClickedCh
-		cancel()
-		systray.Quit()
-	}()
-	return menu
-}
-
-func setupStatusMenu(ctx context.Context) *systray.MenuItem {
-	menu := systray.AddMenuItem(fmt.Sprintf(`Slack status set to "%s %s"`, status.DefaultStatusText, status.DefaultStatusEmoji), "")
-	menu.Hide()
-	menu.Disable()
-	return menu
-}
-
-func switchIcon(ctx context.Context, isOnCh chan bool) error {
+func switchOnIcon(ctx context.Context, isOnCh chan bool) error {
 	for {
 		isOn := <-isOnCh
 		switch isOn {

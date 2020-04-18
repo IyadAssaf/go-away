@@ -25,8 +25,6 @@ func setupPreferencesMenu(ctx context.Context, tokenCh chan string) *systray.Men
 	go func() {
 		<-prefMenu.ClickedCh
 
-		//systray.ShowAppWindow(serverUrl)
-
 		err := exec.Command("open", serverUrl).Run()
 		if err != nil {
 			logError(err)
@@ -53,7 +51,7 @@ func runConfigServer(ctx context.Context, port int, tokenCh chan string) {
   <input type="submit" value="Submit">
 </form> 
 </body>
-</html>s
+</html>
 `))
 	})
 
@@ -65,10 +63,8 @@ func runConfigServer(ctx context.Context, port int, tokenCh chan string) {
 
 	http.Handle("/", r)
 
-	go func() {
-		// TODO make this closable from tokenCh closing
-		if err := http.ListenAndServe(fmt.Sprintf("localhost:%d", port), nil); err != nil {
-			panic(err)
-		}
-	}()
+	// TODO make this closable from tokenCh closing
+	if err := http.ListenAndServe(fmt.Sprintf("localhost:%d", port), nil); err != nil {
+		panic(err)
+	}
 }

@@ -1,8 +1,24 @@
 package main
 
-import "github.com/getlantern/systray"
+import (
+	"fmt"
+	"github.com/getlantern/systray"
+	"github.com/sirupsen/logrus"
+)
 
 func main() {
-	systray.RunWithAppWindow("Preferences", 1500, 1500, onReady, onExit)
+	systray.Run(onReady, onExit)
 }
 
+func onExit() {
+}
+
+func logError(err error) {
+	logrus.Error(err)
+	errMenu.SetTitle(fmt.Sprintf("Error: %s", err))
+	errMenu.Show()
+}
+
+func clearError() {
+	errMenu.Hide()
+}

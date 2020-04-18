@@ -42,6 +42,6 @@ GLOBAL OPTIONS:
    --debug               enable debug logging (default: false)
    --status-text value   text to use for slack status (default: "On webcam")
    --status-emoji value  emoji to use for slack status (default: "🎥")
-   --refresh-rate value  number of seconds to refresh webcam status (default: 0)
+   --refresh-rate value  number of seconds to refresh webcam status (default: 5)
    --help, -h            show help (default: false)
 ```

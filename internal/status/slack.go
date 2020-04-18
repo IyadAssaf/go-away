@@ -15,7 +15,7 @@ var log = logrus.New()
 const (
 	DefaultStatusText      = "On webcam"
 	DefaultStatusEmoji     = "🎥"
-	DefaultWaitTimeSeconds = 8
+	DefaultWaitTimeSeconds = 5
 )
 
 type SlackStatus struct {

@@ -19,19 +19,23 @@ const (
 )
 
 type SlackStatus struct {
-	client      *slack.Client
-	statusText  string
-	statusEmoji string
-	refreshRate int64
-	slackToken  string
+	client        *slack.Client
+	statusText    string
+	statusEmoji   string
+	refreshRate   int64
+	slackToken    string
+	statusIsSet   bool
+	statusIsUnset bool
 }
 
 func NewSlackStatus() *SlackStatus {
 	return &SlackStatus{
-		client:      slack.New(os.Getenv("SLACK_API_TOKEN")),
-		statusText:  DefaultStatusText,
-		statusEmoji: DefaultStatusEmoji,
-		refreshRate: DefaultWaitTimeSeconds,
+		client:        slack.New(os.Getenv("SLACK_API_TOKEN")),
+		statusText:    DefaultStatusText,
+		statusEmoji:   DefaultStatusEmoji,
+		refreshRate:   DefaultWaitTimeSeconds,
+		statusIsSet:   false,
+		statusIsUnset: false,
 	}
 }
 
@@ -61,15 +65,33 @@ func (s *SlackStatus) SetLogLevel(level logrus.Level) {
 }
 
 func (s *SlackStatus) DoNotDistrub(ctx context.Context) error {
-	log.Debugf("Setting status on slack")
-	//TODO rate limit how often we send this
-	return s.client.SetUserCustomStatusContext(ctx, s.statusText, s.statusEmoji, 0)
+	s.statusIsUnset = false
+	if !s.statusIsSet {
+		log.Debugf("Setting status on slack")
+		//TODO rate limit how often we send this
+		if err := s.client.SetUserCustomStatusContext(ctx, s.statusText, s.statusEmoji, 0); err != nil {
+			return err
+		}
+		s.statusIsSet = true
+	}
+
+	return nil
 }
 
 func (s *SlackStatus) Clear(ctx context.Context) error {
-	log.Debugf("Unsetting status on slack")
 	//TODO rate limit how often we send this
-	return s.client.UnsetUserCustomStatusContext(ctx)
+	s.statusIsSet = false
+
+	if !s.statusIsUnset {
+		log.Debugf("Unsetting status on slack")
+		//TODO rate limit how often we send this
+		if err := s.client.UnsetUserCustomStatusContext(ctx); err != nil {
+			return err
+		}
+		s.statusIsUnset = true
+	}
+
+	return nil
 }
 
 func (s *SlackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context, isOnNotif chan bool) error {

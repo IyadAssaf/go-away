@@ -41,15 +41,19 @@ func runConfigServer(ctx context.Context, port int, tokenCh chan string) {
 		w.WriteHeader(200)
 		w.Header().Add("Content-Type", "text/html")
 		w.Write([]byte(`
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
 <body>
 
-<form action="/preferences">
+<form action="/preferences" method="POST">
   <label for="fname">Slack API token</label><br>
   <input type="text" id="token" name="token" value=""><br>
   <input type="submit" value="Submit">
-</form> 
+</form>
+
 </body>
 </html>
 `))

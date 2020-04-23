@@ -22,7 +22,7 @@ Useful for stopping peoples from walking into the room when you're on a work cal
 
 - Select "Preferences" from the dropdown menu and enter your "OAuth Access Token" from the Slack app console. You can also edit your slack emoji and status message here.
 
-![preferences](assets/preferences.png)
+![prefs](assets/prefs.png)
 
 ### CLI `go-away` 
 

@@ -15,11 +15,10 @@ Useful for stopping peoples from walking into the room when you're on a work cal
 
 - Run `make install-app` and copy your app to your Applications folder
 
-- To set up 
+- Start the app, you'll see the app in your task bar
 
 ![go-away](assets/screenshot.png)
   
-
 - Select "Preferences" from the dropdown menu and enter your "OAuth Access Token" from the Slack app console. You can also edit your slack emoji and status message here.
 
 ![prefs](assets/prefs.png)

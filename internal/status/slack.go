@@ -41,6 +41,8 @@ func NewSlackStatus() *SlackStatus {
 
 func (s *SlackStatus) WithSlackToken(token string) *SlackStatus {
 	s.slackToken = token
+
+	log.Debugf("setting token %s", s.slackToken)
 	s.client = slack.New(s.slackToken)
 	return s
 }
@@ -67,11 +69,13 @@ func (s *SlackStatus) SetLogLevel(level logrus.Level) {
 func (s *SlackStatus) DoNotDistrub(ctx context.Context) error {
 	s.statusIsUnset = false
 	if !s.statusIsSet {
-		log.Debugf("Setting status on slack")
+		log.Debugf("Setting status on slack using token %s", s.slackToken)
 		//TODO rate limit how often we send this
 		if err := s.client.SetUserCustomStatusContext(ctx, s.statusText, s.statusEmoji, 0); err != nil {
+			log.Debugf("error setting status %s", err)
 			return err
 		}
+		log.Debugf("successfully set status")
 		s.statusIsSet = true
 	}
 
@@ -83,11 +87,13 @@ func (s *SlackStatus) Clear(ctx context.Context) error {
 	s.statusIsSet = false
 
 	if !s.statusIsUnset {
-		log.Debugf("Unsetting status on slack")
+		log.Debugf("Unsetting status on slack using token %s", s.slackToken)
 		//TODO rate limit how often we send this
 		if err := s.client.UnsetUserCustomStatusContext(ctx); err != nil {
+			log.Debugf("error unsetting status %s", err)
 			return err
 		}
+		log.Debugf("successfylly unset status")
 		s.statusIsUnset = true
 	}
 
@@ -147,18 +153,4 @@ func (s *SlackStatus) SetStatusWhenWebcamIsBusy(ctx context.Context, isOnNotif c
 	log.Debugf("context is finished")
 
 	return err
-}
-
-func defaultStringPtr(input *string, def string) string {
-	if input != nil {
-		return *input
-	}
-	return def
-}
-
-func defaultInt64Ptr(input *int64, def int64) int64 {
-	if input != nil {
-		return *input
-	}
-	return def
 }

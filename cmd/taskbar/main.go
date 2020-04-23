@@ -20,5 +20,6 @@ func logError(err error) {
 }
 
 func clearError() {
+	logrus.Debug("clearing error")
 	errMenu.Hide()
 }

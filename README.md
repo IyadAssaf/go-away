@@ -33,7 +33,7 @@ Useful for stopping peoples from walking into the room when you're on a work cal
 ```
 $ go-away --help
 NAME:
-   go-away - ./go-awayw
+   go-away - ./go-away
 
 USAGE:
    go-away [global options] command [command options] [arguments...]
